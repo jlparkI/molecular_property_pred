@@ -22,7 +22,7 @@ In addition to the molecular structure, the competition provided some extra feat
 
 There are eight different types of coupling constants in the dataset. Coupling constants are denoted xJyz, where x is the number of bonds that separate the two atoms of interest, y is the atom type for the first atom of interest (hydrogen, carbon or nitrogen) and z is the atom type for the second atom of interest. So 1JHN, for example, means the coupling constant is between a hydrogen and nitrogen bonded to each other, while 2JHC is for a hydrogen and carbon separated by one other atom (two bonds between them). The chart below illustrates the range of values observed in the training set for each type of coupling constant.
 
-![figure 1](https://github.com/jlparki/molecular_machine_learning_kaggle_contest/fig1.png
+![figure 1] (https://github.com/jlparki/molecular_machine_learning_kaggle_contest/fig1.png
 
 Clearly each type is a somewhat different critter, and that extends to which features are important. For example, the chart below illustrates the correlation between bond angle and coupling constant for 2JHC, 2JHN and 2JHH. Obviously for 2-bond couplings we care considerably about bond angles (although how MUCH we care depends on type), whereas for 1-bond couplings there is nonesuch.
 
@@ -38,7 +38,7 @@ Finally, data cleanup. I used the open-source package OpenBabel to convert the .
 
 Most of the problem structures were in the training set; we don't care about those because we have 4.7 million training datapoints and can afford to lose a tiny chunk. Test set, different story. I took the problem structures that were part of the test set and manually fixed those; there were only a few dozen of them and it was a quick fix.
 
-##Strategy
+## Strategy
 A brief glance at the literature (Gilmer et al. 2017) suggests that for prediction of molecular properties, graph convolutional networks (GCNs) and related architectures win by wide margins. So as a starting approach, I built a GCN in PyTorch. It takes as input a feature vector for each atom and an adjacency matrix for the whole molecule, indicating which atoms are attached to which other atoms (we modify this adjacency matrix by adding 1 to diagonal elements so that the graph essentially includes a 'loop' edge connecting each atom to itself). We can normalize the adjacency matrix so that all rows / colums sum to 1, and I experimented with this; interestingly I achieved greater accuracy without adjacency matrix normalization. This is another aspect I would revisit if I had more time since this was unexpected and a little intriguing. Clearly we have some room for improvement on inter-layer normalization.
 
 So for each datapoint, we have a feature matrix that is n x l, where l is the length of the feature vector and n is the number of atoms for the largest molecule in the dataset, and an n x n adjacency matrix. Both adjacency matrix and feature matrix are zero-padded to achieve size n. If we just feed the feature and adjacency matrices into the NN, though, the network doesn't know which atoms in this molecule we actually care about. The coupling constant is more strongly affected by atoms close to this pair of interest, so when generating the feature matrices I used one-hot encoding to indicate whether each atom was 1) one of the pair of interest, 2) attached to the pair of interest or in between them or 3) separated from the pair of interest by more than 1 bond (a "distant" atom). The architecture of the NN is diagrammed below (don't worry, I'll walk through how this works).
@@ -53,7 +53,7 @@ Finally, I tied this all together with a shell script. (Yes, I'm familiar with S
 
 Only thing to be aware of -- depending on how much RAM you have, the 2JHC and 3JHC datasets MAY be too big to fit in memory. Those are the two largest and the only ones where this is a possible concern. The easy fix is to memory-map the numpy feature files and rejigger the network to pull a minibatch at a time. I had 32GB of RAM (sweet luxury) and didn't have to do that, but YMMV. The smallest datasets are 1JHN, 2JHN and 3JHN, so if you want to play around with this those are a good place to start.
 
-##Results
+## Results
 My results are tabulated below. Note that my model doesn't do too badly at all. In all categories, I achieve an R^2 > 0.999 and MAE as percent of average value for that category < 0.001%. Depending on the nature of your goals, this result might be perfectly acceptable. For a Kaggle competition, however, "good" is not good enough. We're in this to win, dammit. And my submission here was only in the top 40%, which is all right but nowhere near enough to grab some cash. But at this point I was out of time...
 
 
