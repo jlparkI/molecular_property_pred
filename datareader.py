@@ -73,12 +73,12 @@ for i in range(0, x3.shape[0]):
 
 import seaborn as sns
 fig, axes = plt.subplots(nrows=2,ncols=3)
-axes[0][0].hexbin(jhn1charges[:,0], y2, cmap='Blues')
-axes[1][0].hexbin(jhn1charges[:,1], y2, cmap='Blues')
-axes[0][1].hexbin(jhn2charges[:,0], y3, cmap='Reds')
-axes[1][1].hexbin(jhn2charges[:,1], y3, cmap='Reds')
-axes[0][2].hexbin(jhn3charges[:,0], y, cmap='Greens')
-axes[1][2].hexbin(jhn3charges[:,1], y, cmap='Greens')
+axes[0][0].hexbin(jhn1charges[:,0], y2, cmap='inferno')
+axes[1][0].hexbin(jhn1charges[:,1], y2, cmap='inferno')
+axes[0][1].hexbin(jhn2charges[:,0], y3, cmap='plasma')
+axes[1][1].hexbin(jhn2charges[:,1], y3, cmap='plasma')
+axes[0][2].hexbin(jhn3charges[:,0], y, cmap='cividis')
+axes[1][2].hexbin(jhn3charges[:,1], y, cmap='cividis')
 axes[0][0].set_title('1JHN, charge on nitrogen vs.\ncoupling constant')
 axes[1][0].set_title('1JHN, charge on hydrogen vs.\ncoupling constant')
 axes[0][1].set_title('2JHN, charge on nitrogen vs.\ncoupling constant')
