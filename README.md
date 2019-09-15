@@ -47,8 +47,8 @@ So for each datapoint, we have a feature matrix that is n x l, where l is the le
 
 Now the model takes the input feature matrix and applies a linear layer followed by gated convolutional activation (see [Dauphin et al., 2016](https://arxiv.org/abs/1612.08083)). Gated convolutional activation outperforms ReLU here. Next, we multiply A H1 so that each atom is summed with its neighbors -- the atoms attached to it. To summarize:
 
-![latex 1](images/latex1.gif)
-![latex 2](images/latex2.gif)
+<img src = "images/latex1.gif" />
+<img src = "images/latex2.gif" />
 
 We repeat this two-step process twice, so that each atom is being modified based on its neighbors which have now been modified based on THEIR neighbors. That's what graph convolution is all about. Finally, we use matrix multiplication to break the output of the last layer into categories 1 - 3 and sum all the atoms in each category, then normalize. At this point, a simple 3-layer fully-connected neural network with layer normalization converts this information into a predicted value. Calculate mean-squared-error loss, use the Adam gradient-descent based algorithm for optimization and there you go.
 
