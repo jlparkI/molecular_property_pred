@@ -22,7 +22,7 @@ In addition to the molecular structure, the competition provided some extra feat
 
 There are eight different types of coupling constants in the dataset. Coupling constants are denoted xJyz, where x is the number of bonds that separate the two atoms of interest, y is the atom type for the first atom of interest (hydrogen, carbon or nitrogen) and z is the atom type for the second atom of interest. So 1JHN, for example, means the coupling constant is between a hydrogen and nitrogen bonded to each other, while 2JHC is for a hydrogen and carbon separated by one other atom (two bonds between them). The chart below illustrates the range of values observed in the training set for each type of coupling constant.
 
-![figure 1] (https://github.com/jlparki/molecular_machine_learning_kaggle_contest/fig1.png
+![figure 1]( fig1.png)
 
 Clearly each type is a somewhat different critter, and that extends to which features are important. For example, the chart below illustrates the correlation between bond angle and coupling constant for 2JHC, 2JHN and 2JHH. Obviously for 2-bond couplings we care considerably about bond angles (although how MUCH we care depends on type), whereas for 1-bond couplings there is nonesuch.
 
