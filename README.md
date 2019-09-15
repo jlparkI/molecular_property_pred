@@ -58,6 +58,6 @@ Only thing to be aware of -- depending on how much RAM you have, the 2JHC and 3J
 ## Results
 My results are tabulated below. Results were in the top 40% of submissions -- ok for a first submission, but given time I'd love to have reworked this. Clearly there's a lot of room for improvement on 2- and 3- bond coupling constants; 1-bond aren't too bad at all, while 3JHN is pretty ugly.
 
-![table 1](tab1.png)
+![table 0](tab0.png)
 
 So what would I do differently? Clearly normalization in the network needed some work, we could possibly make use of the training-set-only features, and we could increase model capacity. I think the most room for improvement, however, lies in bond information. A brief glance at the literature (e.g. Duvenaud et al 2015) suggests including edge information is helpful and that's something we omitted here. My model uses the vertices of the graph, but makes no use of information about the edges, except insofar as they indicate who is attached to whom. Even more importantly, we make no use of the cartesian-coordinate distances between atoms. I suspect that including that additional information would provide a good boost, and after that fixing normalization would be the next step.
