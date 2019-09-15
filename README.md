@@ -28,7 +28,7 @@ There are eight different types of coupling constants in the dataset. Coupling c
 
 Clearly each type is a somewhat different critter, and that extends to which features are important. For example, the chart below illustrates the correlation between partial charge (calculated using the EEM method, there are different methods) and coupling constant for 1JHN, 2JHN and 3JHN.
 
-![figure 2](fig2.png)
+![figure 2]( fig2.png)
 
 There's lots of other examples to illustrate, but I think you can already see that relationships between features and coupling constants are highly type-specific. The biggest differences are between 1-bond, 2-bond and 3-bond. We could leave it to our model to figure this out, or we can train separate models for the different coupling constant types.
 
