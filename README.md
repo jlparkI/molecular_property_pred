@@ -64,6 +64,7 @@ First things first. This pipeline is intended for Linux and won't run on Windoze
 So, to use this. First, clone the repo and extract moldict.gz, test.csv.gz and train.csv.gz. These are the raw data files the pipeline will need to build models. Next, run the following:
 
 `chmod +x pipeline.sh`
+
 `./pipeline.sh`
 
 Running `pipeline.sh` with no options will give you a readout on usage and tell you what to do from there. It's pretty simple -- you can run `pipeline.sh` in train mode, to train a model for a specific coupling constant, or in test mode, to generate predictions for the test set for a specific coupling constant, and it will take care of the rest while you make yourself a cup of tea / grab a beer / hang out with your dog, come back in 20. Good times.
