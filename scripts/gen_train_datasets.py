@@ -1,31 +1,56 @@
+#We will use sys.argv to import arguments from pipeline. Python getopts is redundant
+#here since pipeline.sh already parses user arguments.
 import numpy as np, os, pickle, sys
 import gen_props_gc
 
 
-if len(sys.argv) == 3 and sys.argv[2] == 'new':
-    moldict = dict()
-    os.chdir('sdfs')
-    for i, filename in enumerate(os.listdir()):
-        try:
-            suppl = Chem.SDMolSupplier(filename, removeHs=False)
-            mol = suppl[0]
-            moldict[filename.split('.sdf')[0]] = mol
-        except:
-            print('Error for file %s'%filename)
-        if i % 10000 == 0:
-            print('%s complete'%i)
-    os.chdir('..')
-    with open('moldict', 'wb') as out:
-        pickle.dump(moldict, out)
-        
-else:
-    with open('moldict', 'rb') as inp:
-        moldict = pickle.load(inp)
+#We will use a pickled dictionary of all of the molecules in the
+#dataset so we can quickly access the appropriate molecule for a
+#given datapoint as we read them from the training file. If
+#the pickled dictionary does not already exist, we will create it.
+#Otherwise, load it. Then call the train_extraction function
+#to process the data.
+def main():
+    if 'moldict' not in os.listdir():
+        moldict = dict()
+        os.chdir('sdfs')
+        for i, filename in enumerate(os.listdir()):
+            try:
+                suppl = Chem.SDMolSupplier(filename, removeHs=False)
+                mol = suppl[0]
+                moldict[filename.split('.sdf')[0]] = mol
+            except:
+                print('Error for file %s'%filename)
+            if i % 10000 == 0:
+                print('%s complete'%i)
+        os.chdir('..')
+        with open('moldict', 'wb') as out:
+            pickle.dump(moldict, out)
+    else:
+        with open('moldict', 'rb') as inp:
+            moldict = pickle.load(inp)
+
+    numbonds = int(sys.argv[1][0])
+    #If we are working with the 2JHC dataset, the number of
+    #datapoints for this dataset is so large we can't build the features in
+    #memory. In that case, train_extraction will build then
+    #merge separate files using numpy memory-mapping.
+    #Also, before generating features we check to make sure they weren't already generated...
+    if 'train_%sx.npy'%(sys.argv[1]) in os.listdir():
+        print('features already generated')
+    else:
+        print('Generating features for %s, dataset is %s. '
+              'This may take a minute... will print updates'
+              ' every 200000 datapoints.'%(sys.argv[1], sys.argv[2]))
+        if sys.argv[2] == 'large':
+            train_extraction(sys.argv[1], numbonds, moldict, large=True)
+        else:
+            train_extraction(sys.argv[1], numbonds, moldict)
             
 
 
 #########Generate features for training set data
-def train_extraction(coupling_type, numbonds, large=False):
+def train_extraction(coupling_type, numbonds, moldict, large=False):
     featuremats, groundtruths = [], []
     counter, filecounter = 0, 0
     with open('train.csv') as input_file:
@@ -34,37 +59,57 @@ def train_extraction(coupling_type, numbonds, large=False):
             segments = line.strip().split(',')
             mol = moldict[segments[1]]
             if segments[4] == coupling_type:
+                #Make sure the molecule associated with this datapoint
+                #has an entry in the molecule dictionary from above.
                 if mol is not None:
+                    #Skipping lines 37 and 38 because those two
+                    #have associated errors (need to come up with a more
+                    #permanent fix)
                     if counter != 37 and counter != 38:
                         featuremats.append(gen_props_gc.
                                         gen_props_charges(mol, int(segments[2]),
                                         int(segments[3]), numbonds=numbonds))
                         groundtruths.append(float(segments[5]))
                     counter += 1
+                    #If dealing with a large dataset (e.g. 2JHC), create
+                    #separate files with subsets of the dataset and
+                    #merge them later.
                     if counter % 200000 == 0:
+                        print('200000 lines parsed')
                         if large == True:
                             dump_data(featuremats, groundtruths, filecounter, coupling_type)
                             filecounter += 1
                             featuremats, groundtruths = [], []
-                        
-    dump_data(featuremats, groundtruths, filecounter, coupling_type)
-    del featuremats, groundtruths
-    if large == True:
+    print('Writing features to file...')                
+    dump_data(featuremats, groundtruths, filecounter, coupling_type, large)
+    if large == False:
+        print('features generated: dimensions of trainset tensor are: %s x %s x %s'%(len(featuremats),
+                                                                      featuremats[0].shape[0],
+                                                                      featuremats[0].shape[1]))
+    else:
         filecounter += 1
         merge_files(coupling_type, filecounter)
+    del featuremats, groundtruths
 
-def dump_data(featuremats, groundtruths, filecounter, coupling_type):
+#Convenience function that dumps the assembled data into a numpy file
+#for loading during model training.
+def dump_data(featuremats, groundtruths, filecounter, coupling_type, large=False):
     groundtruths = np.asarray(groundtruths)
     featuremats = np.stack(featuremats)
-    print(featuremats.shape)
     indices = np.random.choice(groundtruths.shape[0], size=groundtruths.shape[0],
                                replace=False)
     featuremats = featuremats[indices,:,:]
     groundtruths = groundtruths[indices]
-    np.save('train_%sx_%s.npy'%(coupling_type, filecounter), featuremats)
-    np.save('train_%sy_%s.npy'%(coupling_type, filecounter), groundtruths)
+    if large == True:
+        np.save('train_%sx_%s.npy'%(coupling_type, filecounter), featuremats)
+        np.save('train_%sy_%s.npy'%(coupling_type, filecounter), groundtruths)
+    else:
+        np.save('train_%sx.npy'%(coupling_type), featuremats)
+        np.save('train_%sy.npy'%(coupling_type), groundtruths)
 
-
+#This function is only used for large datasets (e.g. 2JHC), where
+#subsets of the data are temporarily stored in separate temporary files
+#which are then memory-mapped and merged.
 def merge_files(coupling_type, file_counter):
     x_files, y_files = [], []
     rows = 0
@@ -86,12 +131,11 @@ def merge_files(coupling_type, file_counter):
         mergedy[rows:rows + current_y.shape[0]] = current_y
         rows += current_x.shape[0]
         del current_x, current_y
+    del mergedx, mergedy
     for i in range(0, file_counter):
         os.remove(x_files[i])
         os.remove(y_files[i])
 
-numbonds = int(sys.argv[1][0])
-if sys.argv[1] == '2JHC':
-    train_extraction(sys.argv[1], numbonds, large=True)
-else:
-    train_extraction(sys.argv[1], numbonds)
+
+#########
+main()
