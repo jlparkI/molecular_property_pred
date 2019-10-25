@@ -1,7 +1,7 @@
 # Machine Learning for prediction of molecular properties using a graph convolutional network
 This project is my pipeline for generating submissions for the Kaggle ["Predicting Molecular Properties"](https://www.kaggle.com/c/champs-scalar-coupling) competition. The goal is to predict NMR coupling constants for 2,505,541 atom pairs in the test set, using a training set of 4,658,147 atom pairs.
 
-I started on the contest less than three weeks before it ended, so time pressure was a factor, especially since this was a spare-time project. My submission achieved a score in the top 40% of entries -- ok for a start. I packaged the model in an easy-to-use pipeline you can run using a single shell script to train the model and generate test set predictions (see How To Use below). Here are some quick guidelines on usage followed by background, my strategy and a summary of my results.
+I started on the contest less than three weeks before it ended, so time pressure was a factor, especially since this was a spare-time project. My submission score was in the top 40% of entries. I packaged the model in an easy-to-use pipeline you can run using a single shell script to train the model and generate test set predictions (see How To Use below). Here are some quick guidelines on usage followed by background, my strategy and a summary of my results.
 
 
 ## Usage
