@@ -7,7 +7,7 @@ I started on the contest less than three weeks before it ended, so time pressure
 ## Usage
 This pipeline is intended for Linux, uses Python3 and will give errors with Python2. The Python packages you need are rdkit, PyTorch and numpy (install with Anaconda or pip). Finally, the pipeline uses a GPU to train the models and make predictions. If you want to set this up to run on CPU only, you'll have to comment any lines in the `convnet_gc.py` script that contain 'cuda'. Training these nns on CPU will however require some patience so using the pipeline as-is on a GPU is recommended.
 
-So, to use this. First, clone the repo and extract moldict.gz, test.csv.gz and train.csv.gz. These are the raw data files the pipeline will need to build models. Next, run the following:
+So, to use this. First, clone the repo and extract moldict.gz, test.csv.gz and train.csv.gz. These are the raw data files the pipeline will need to build models. Cloning the repo could be a little slow because again, all the data you need is included, so it's bigger than your typical repository. Next, run the following:
 
 `chmod +x pipeline.sh`
 
