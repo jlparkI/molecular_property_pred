@@ -77,7 +77,7 @@ def train_extraction(coupling_type, numbonds, moldict, large=False):
                     if counter % 200000 == 0:
                         print('200000 lines parsed')
                         if large == True:
-                            dump_data(featuremats, groundtruths, filecounter, coupling_type)
+                            dump_data(featuremats, groundtruths, filecounter, coupling_type, large)
                             filecounter += 1
                             featuremats, groundtruths = [], []
     print('Writing features to file...')                
